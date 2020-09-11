@@ -1,0 +1,11 @@
+#DBConfig
+dbHost: "localhost"
+dbUser: "root"
+dbPassword: "&QC8DF?^Z3kbnLeLbq4MyhjN3"
+dbName: "todo-fullstack"
+dbPort: 3306
+
+#Server Config
+host: "localhost"
+port: 8000
+secret: "segredo"
