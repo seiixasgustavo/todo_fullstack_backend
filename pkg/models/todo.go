@@ -34,7 +34,7 @@ func (t *Todo) GetByPk(db *gorm.DB, id uint) (*Todo, error) {
 
 func (t *Todo) GetByUser(db *gorm.DB, userID uint) (*[]Todo, error) {
 	var todos []Todo
-	if err := db.Where("userId = ?", userID).Find(&todos).Error; err != nil {
+	if err := db.Where("user_id = ?", userID).Find(&todos).Error; err != nil {
 		return nil, err
 	}
 	return &todos, nil

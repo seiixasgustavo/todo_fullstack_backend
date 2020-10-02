@@ -21,6 +21,11 @@ type TodosResponse struct {
 	Todos  []models.Todo
 }
 
+type TodoTimestampResponse struct {
+	Status bool
+	Todos  map[string][]models.Todo
+}
+
 type TokenResponse struct {
 	Status bool
 	Token  string

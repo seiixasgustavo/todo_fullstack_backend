@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
@@ -27,15 +28,14 @@ func (t *TodoController) Routes(e *echo.Group) {
 	router.GET("/delete/:id", t.Delete)
 	router.GET("/find/:id", t.FindByPk)
 	router.GET("/find/user/:id", t.FindByUserId)
+	router.GET("/find/user/timestamp/:id", t.FindByUserIdWithTimestamp)
 }
 
 func (t *TodoController) Create(c echo.Context) error {
-	fmt.Println("Hello")
 	todo := &models.Todo{}
 	if err := c.Bind(&todo); err != nil {
 		return helper.WrongBody(c)
 	}
-	fmt.Println("Hello")
 	if todo.Text == "" || todo.UserID == 0 {
 		return helper.WrongBody(c)
 	}
@@ -89,11 +89,6 @@ func (t *TodoController) Update(c echo.Context) error {
 	if todoErr != nil {
 		return c.String(http.StatusBadRequest, "Id Error")
 	}
-
-	if err := c.Bind(&todo); err != nil {
-		return c.String(http.StatusBadRequest, "Body Error")
-	}
-
 	if err := todo.Update(t.db, uint(todoId)); err != nil {
 		return c.String(http.StatusInternalServerError, "Internal Error")
 	}
@@ -113,4 +108,27 @@ func (t *TodoController) FindByUserId(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Internal Error")
 	}
 	return c.JSON(http.StatusOK, helper.TodosResponse{Status: true, Todos: *responseTodo})
+}
+
+func (t *TodoController) FindByUserIdWithTimestamp(c echo.Context) error {
+	var todo models.Todo
+	id := c.Param("id")
+	userId, todoErr := strconv.ParseUint(id, 10, 64)
+	if todoErr != nil {
+		return c.String(http.StatusBadRequest, "Id Error")
+	}
+
+	responseTodo, err := todo.GetByUser(t.db, uint(userId))
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Internal Error")
+	}
+	res := make(map[string][]models.Todo)
+
+	for _, e := range *responseTodo {
+		tInt, _ := strconv.ParseInt(e.Due, 10, 64)
+		t := time.Unix(0, tInt*int64(time.Millisecond))
+		timestampString := fmt.Sprintf("%d-%d-%d", t.Year(), t.Month(), t.Day())
+		res[timestampString] = append(res[timestampString], e)
+	}
+	return c.JSON(http.StatusOK, helper.TodoTimestampResponse{Status: true, Todos: res})
 }

@@ -73,10 +73,6 @@ func (u *UserController) Create(c echo.Context) error {
 	if err := user.Create(u.db); err != nil {
 		return c.String(http.StatusInternalServerError, "Server Error")
 	}
-	if login := user.Login(u.db); !login {
-		return c.String(http.StatusBadRequest, "Failed to Login")
-	}
-
 	response := helper.Response{Status: true}
 	return c.JSON(http.StatusOK, response)
 }
