@@ -13,7 +13,7 @@ func GenerateToken(id uint) (string, error) {
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = id
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 2).Unix()
 
 	t, err := token.SignedString([]byte(config.Cfg.Secret))
 	if err != nil {
